@@ -9,25 +9,25 @@ This utility script helps manage a Steem witness node using Docker. You can star
 The following environment variables can be used to customize the behavior of the script:
 
 ### DOCKER_NAME
-Description: The name of the Docker container that will run the Steem witness node.
-Default: steem
-Example:
+- Description: The name of the Docker container that will run the Steem witness node.
+- Default: steem
+- Example:
 ```bash
 export DOCKER_NAME="my_steem_container"
 ```
 
 ### DOCKER_IMAGE
-Description: The Docker image that will be used to run the Steem witness node.
-Default: steem:latest
-Example:
+- Description: The Docker image that will be used to run the Steem witness node.
+- Default: steem:latest
+- Example:
 ```bash
 export DOCKER_IMAGE="my_custom_steem_image:latest"
 ```
 
 ### LOCAL_STEEM_LOCATION
-Description: The local directory where Steem data will be stored. This directory will be mounted to the Docker container.
-Default: /root/steem-docker/data/witness_node_data_dir
-Example:
+- Description: The local directory where Steem data will be stored. This directory will be mounted to the Docker container.
+- Default: /root/steem-docker/data/witness_node_data_dir
+- Example:
 ```bash
 export LOCAL_STEEM_LOCATION="/mnt/my_steem_data"
 ```
