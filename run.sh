@@ -3,9 +3,15 @@
 # by Steem Witness: @justyy
 # Thanks to Steem Witness: @ety001 on his post: https://steemit.com/witness/@ety001/how-to-deploy-a-steem-witness-node-by-docker
 
-DOCKER_NAME="steem"
-DOCKER_IMAGE="steem:latest"
-LOCAL_STEEM_LOCATION="/root/steem-docker/data/witness_node_data_dir"
+# Default values
+DEFAULT_DOCKER_NAME="steem"
+DEFAULT_DOCKER_IMAGE="steem:latest"
+DEFAULT_LOCAL_STEEM_LOCATION="/root/steem-docker/data/witness_node_data_dir"
+
+# Check if the environment variables are set, if not use the default values
+DOCKER_NAME=${DOCKER_NAME:-$DEFAULT_DOCKER_NAME}
+DOCKER_IMAGE=${DOCKER_IMAGE:-$DEFAULT_DOCKER_IMAGE}
+LOCAL_STEEM_LOCATION=${LOCAL_STEEM_LOCATION:-$DEFAULT_LOCAL_STEEM_LOCATION}
 
 ## 2001 is seed port
 ## 8091 is API pord - optional, remove if you don't expose API
