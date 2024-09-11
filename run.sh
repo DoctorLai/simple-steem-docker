@@ -4,7 +4,8 @@
 # Thanks to Steem Witness: @ety001 on his post: https://steemit.com/witness/@ety001/how-to-deploy-a-steem-witness-node-by-docker
 
 DOCKER_NAME="steem"
-DOCKER_IMAGE="ety001/steem-full-mira"
+DOCKER_IMAGE="steem:latest"
+LOCAL_STEEM_LOCATION="/root/steem-docker/data/witness_node_data_dir"
 
 ## 2001 is seed port
 ## 8091 is API pord - optional, remove if you don't expose API
@@ -13,7 +14,7 @@ start() {
         --name $DOCKER_NAME \
         -p 2001:2001 \
         -p 8091:8091 \
-        -v /data/steem/data:/steem \
+        -v $LOCAL_STEEM_LOCATION:/steem \
         $DOCKER_IMAGE \
         steemd --data-dir=/steem
 }
