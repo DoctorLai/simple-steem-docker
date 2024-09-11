@@ -35,9 +35,9 @@ export LOCAL_STEEM_LOCATION="/mnt/my_steem_data"
 ## Usage
 To customize the behavior of the script, set any of the environment variables listed above before running the script. If you do not set any of the variables, the script will use the following default values:
 
-DOCKER_NAME: steem
-DOCKER_IMAGE: steem:latest
-LOCAL_STEEM_LOCATION: /root/steem-docker/data/witness_node_data_dir
+- DOCKER_NAME: steem
+- DOCKER_IMAGE: steem:latest
+- LOCAL_STEEM_LOCATION: /root/steem-docker/data/witness_node_data_dir
 
 ### Example with Custom Environment Variables
 ```bash
@@ -67,14 +67,19 @@ The Steem data will be mounted to /data/steem/data on the host.
 ./run.sh stop
 ```
 
-This command will stop the Steem witness node, disconnect it from the lnmp Docker network (if connected), and remove the Docker container.
+This command will stop the Steem witness node, disconnect it from the Docker network (if connected), and remove the Docker container.
 
 ## Restart the Steem Witness Node
 ```bash
 ./run.sh restart
 ```
 
-This command will stop and then restart the Steem witness node.
+This command will stop and then restart the Steem witness node. This is the same as calling:
+
+```bash
+./run.sh stop
+./run.sh start
+```
 
 ## View Logs of the Steem Witness Node
 ```bash
