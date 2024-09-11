@@ -1,9 +1,13 @@
 #!/bin/bash
-# https://steemit.com/witness/@ety001/how-to-deploy-a-steem-witness-node-by-docker
+# repo: https://github.com/doctorlai/simple-steem-docker
+# by Steem Witness: @justyy
+# Thanks to Steem Witness: @ety001 on his post: https://steemit.com/witness/@ety001/how-to-deploy-a-steem-witness-node-by-docker
 
 DOCKER_NAME="steem"
 DOCKER_IMAGE="ety001/steem-full-mira"
 
+## 2001 is seed port
+## 8091 is API pord - optional, remove if you don't expose API
 start() {
     docker run -itd \
         --name $DOCKER_NAME \
@@ -15,7 +19,7 @@ start() {
 }
 
 stop() {
-    docker network disconnect lnmp $DOCKER_NAME
+    docker network disconnect bridge $DOCKER_NAME
     docker stop -t 600 $DOCKER_NAME
     docker rm $DOCKER_NAME
 }
