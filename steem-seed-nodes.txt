@@ -1,0 +1,25 @@
+# Test at: https://steemworld.org/seed-nodes-check
+
+p2p-seed-node = seed.steemworld.org:2001
+p2p-seed-node = seed.justyy.com:2001
+p2p-seed-node = seed.futureshock.world:2001
+p2p-seed-node = seed.steemcryptic.me:2001
+p2p-seed-node = seednode.dlike.io:2001
+p2p-seed-node = seed.steem-market.com:2001
+p2p-seed-node = seed.steemhistory.online:2001
+p2p-seed-node = seed.dhakawitness.com:2001
+p2p-seed-node = seed.cotina.org:2001
+p2p-seed-node = seed.boylikegirl.club:2001
+p2p-seed-node = seed.supporter.dev:2001
+p2p-seed-node = seed.symbionts.io:2001
+p2p-seed-node = seed.goodhello.net:2001
+p2p-seed-node = seed.steemzzang.com:2001
+p2p-seed-node = seed.pennsif.net:2001
+p2p-seed-node = seed.steem.fans:2001
+p2p-seed-node = seed.blokfield.io:2001
+p2p-seed-node = sn1.steemit.com:2001
+p2p-seed-node = sn2.steemit.com:2001
+p2p-seed-node = sn3.steemit.com:2001
+p2p-seed-node = sn4.steemit.com:2001
+p2p-seed-node = sn5.steemit.com:2001
+p2p-seed-node = sn6.steemit.com:2001
