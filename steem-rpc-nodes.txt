@@ -11,7 +11,6 @@ https://api.steemitdev.com
 https://api.steem.fans
 https://steemapi.boylikegirl.club
 https://api.cotina.org  
-https://api.worldofxpilar.com  
 https://steemd.steemworld.org
 https://api.steemzzang.com
 https://api.campingclub.me
@@ -22,8 +21,11 @@ https://api.symbionts.io
 https://rpc.amarbangla.net
 https://api.moecki.online
 https://api.wherein.io
-https://api.steem-fanbase.com
 https://api.botsteem.com
-https://api.futureshock.world
 https://api.steems.top
 https://cn.steems.top
+
+## dead nodes? (at the time of checking 2025-01-30)
+https://api.worldofxpilar.com  
+https://api.steem-fanbase.com
+https://api.futureshock.world
