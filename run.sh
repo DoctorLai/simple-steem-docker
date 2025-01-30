@@ -20,7 +20,7 @@ start() {
         --name $DOCKER_NAME \
         -p 2001:2001 \
         -p 8091:8091 \
-	--ulimit nofile=999999 \
+	--ulimit nofile=99999999 \
         -v $LOCAL_STEEM_LOCATION:/steem \
         $DOCKER_IMAGE \
         steemd --data-dir=/steem
