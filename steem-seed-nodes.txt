@@ -1,33 +1,64 @@
 ## Tool check: https://steemworld.org/seed-nodes-check
 ## Config file: steem-docker/data/witness_node_data_dir/config.ini
 
+# steemchiller
 p2p-seed-node = seed.steemworld.org:2001
+# stmpak.wit
 p2p-seed-node = seed.steemchat.org:2001
+# moecki
 p2p-seed-node = seed.moecki.online:2001
+# dhaka.witness
 p2p-seed-node = seed.dhakawitness.com:2001 
+# roadofrich
 p2p-seed-node = seed.blokfield.io:2001
+# dlike
 p2p-seed-node = seednode.dlike.io:2001 
+# steemit-market
 p2p-seed-node = seed.steem-market.com:2001
+# pensif.witness
 p2p-seed-node = seed.pennsif.net:2001
+# etainclub
 p2p-seed-node = seed.etain.club:2001
+# starlord28
 p2p-seed-node = seed.steemcryptic.me:2001 
+# justyy
 p2p-seed-node = seed.justyy.com:2001
+# justyy
 p2p-seed-node = seed2.justyy.com:2001 
+# bangla.witness
 p2p-seed-node = seed.amarbangla.net:2001
+# dev.supporters
 p2p-seed-node = seed.supporter.dev:2001
+# future.witness
 p2p-seed-node = seed.futureshock.world:2001
+# visionaer3003
 p2p-seed-node = seed.campingclub.me:2001
+# cotina
 p2p-seed-node = seed.cotina.org:2001
+# ety001
 p2p-seed-node = seed.steem.fans:2001
+# boylikegirl
 p2p-seed-node = seed.boylikegirl.club:2001
+# rnt1
 p2p-seed-node = seed.steemzzang.com:2001
+# goodhello
 p2p-seed-node = seed.goodhello.net:2001
+# symbionts
 p2p-seed-node = seed.symbionts.io:2001
+# @xpilar.witness
 p2p-seed-node = 149.56.180.49:2001
+# @seven.wit
 p2p-seed-node = seed.s7ventech.com:2001
+# steemit
 p2p-seed-node = sn1.steemit.com:2001
+# steemit
 p2p-seed-node = sn2.steemit.com:2001
+# steemit
 p2p-seed-node = sn3.steemit.com:2001
+# steemit
 p2p-seed-node = sn4.steemit.com:2001
+# steemit
 p2p-seed-node = sn5.steemit.com:2001
+# steemit
 p2p-seed-node = sn6.steemit.com:2001
+
