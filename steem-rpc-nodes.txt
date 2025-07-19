@@ -32,3 +32,8 @@ https://api.worldofxpilar.com
 https://api.steem-fanbase.com
 https://api.futureshock.world
 https://api.steemzzang.com
+https://api.dhakawitness.com
+https://api.blokfield.io
+https://steem.techs.exchange
+https://api.steemwow.com
+https://api.steem.buzz
