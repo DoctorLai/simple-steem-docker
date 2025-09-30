@@ -24,6 +24,12 @@ export DOCKER_NAME="my_steem_container"
 export DOCKER_IMAGE="my_custom_steem_image:latest"
 ```
 
+You can pull the prebuilt images from [justyy/steem](https://hub.docker.com/r/justyy/steem/tags), for example:
+
+```bash
+docker pull justyy/steem:ubuntu24.04
+```
+
 ### LOCAL_STEEM_LOCATION
 - Description: The local directory where Steem data will be stored. This directory will be mounted to the Docker container.
 - Default: /root/steem-docker/data/witness_node_data_dir
