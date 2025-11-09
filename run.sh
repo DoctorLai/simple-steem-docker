@@ -3,6 +3,11 @@
 # by Steem Witness: @justyy
 # Thanks to Steem Witness: @ety001 on his post: https://steemit.com/witness/@ety001/how-to-deploy-a-steem-witness-node-by-docker
 
+## Usage
+### export DOCKER_NAME="steem"
+### export DOCKER_IMAGE="steem:latest"
+### ./run.sh [start | stop | restart | logs]
+
 # Default values
 DEFAULT_DOCKER_NAME="steem"
 DEFAULT_DOCKER_IMAGE="steem:latest"
@@ -20,10 +25,10 @@ start() {
         --name $DOCKER_NAME \
         -p 2001:2001 \
         -p 8091:8091 \
-	--ulimit nofile=999999 \
+		--ulimit nofile=999999 \
         -v $LOCAL_STEEM_LOCATION:/steem \
         $DOCKER_IMAGE \
-        steemd --data-dir=/steem
+        /usr/local/steemd/bin/steemd --data-dir=/steem
 }
 
 stop() {
@@ -60,4 +65,3 @@ case "$1" in
         exit 1
         ;;
 esac
-
