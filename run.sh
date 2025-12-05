@@ -77,7 +77,6 @@ start() {
 
 test() {
     docker run -it \
-        --name "$DOCKER_NAME" \
         $DOCKER_ARGS \
         --ulimit nofile="$ULIMIT_NUMBER" \
         -v "$LOCAL_STEEM_LOCATION":/steem \
@@ -142,7 +141,7 @@ case "$1" in
     print)      print ;;
     status)     status ;;
     *)
-        echo "Usage: $0 {start|stop|kill|restart|logs [num=100]|debug|print|status|test}"
+        echo "Usage: $0 {start|stop|kill|restart|logs [num=100|all]|debug|print|status|test}"
         exit 1
         ;;
 esac

@@ -7,7 +7,7 @@ This utility script helps manage a Steem witness node using Docker. You can star
 ## Requirements
 
 - Docker installed and running  
-- A Steem witness node Docker image (For example: `justyy/steem:ubuntu24.04`)  
+- A Steem witness node Docker image (For example: `justyy/steem:ubuntu24.04`). See all images at [justyy/steem](https://hub.docker.com/r/justyy/steem)
 
 ---
 
@@ -23,7 +23,7 @@ The following environment variables can be used to customize the behavior of the
 - **Default:** `steem`  
 - **Example:**
 
-<code>export DOCKER_NAME="my_steem_container"</code>
+<code>export DOCKER_NAME="steem"</code>
 
 ---
 
@@ -33,7 +33,7 @@ The following environment variables can be used to customize the behavior of the
 - **Default:** `steem:latest`  
 - **Example:**
 
-<code>export DOCKER_IMAGE="my_custom_steem_image:latest"</code>
+<code>export DOCKER_IMAGE="steem:latest"</code>
 
 You can pull prebuilt images from [justyy/steem](https://hub.docker.com/r/justyy/steem/tags), for example:
 
@@ -43,13 +43,11 @@ You can pull prebuilt images from [justyy/steem](https://hub.docker.com/r/justyy
 
 ### `LOCAL_STEEM_LOCATION`
 
-- **Description:** The local directory where Steem data will be stored. This directory will be mounted to the Docker container.  
+- **Description:** The local directory where Steem data will be stored. This directory will be mounted to the Docker container i.e. `/steem`.
 - **Default:** `/root/steem-docker/data/witness_node_data_dir`  
 - **Example:**
 
-<code>export LOCAL_STEEM_LOCATION="/mnt/my_steem_data"</code>
-
-> Note: You can also export `DEFAULT_LOCAL_STEEM_LOCATION` to override the default used by the script.
+<code>export LOCAL_STEEM_LOCATION="/root/steem-docker"</code>
 
 ---
 
@@ -58,7 +56,7 @@ You can pull prebuilt images from [justyy/steem](https://hub.docker.com/r/justyy
 - **SEED_PORT:** Port mapping for the Steem witness node seed port (default `-p 2001:2001`)  
 - **API_PORT:** Port mapping for the HTTP RPC port (default `-p 8091:8091`)  
 
-You can remove or change these in the script if you don’t want to expose the API port.
+You can remove or change these in the script e.g. if you don't want to expose the API port.
 
 ---
 
@@ -66,6 +64,8 @@ You can remove or change these in the script if you don’t want to expose the A
 
 - **Description:** Number of file descriptors allowed for the container.  
 - **Default:** `999999`  
+
+> Usually, you don't need to change this value.
 
 ---
 
