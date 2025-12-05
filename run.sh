@@ -118,6 +118,10 @@ restart() {
 }
 
 logs() {
+    if ! docker ps -a --format '{{.Names}}' | grep -qw "$DOCKER_NAME"; then
+        echo "Container '$DOCKER_NAME' does not exist."
+        return
+    fi
     tail_count="${1:-100}"
     if [ "$tail_count" = "all" ]; then
         docker logs -f "$DOCKER_NAME"
