@@ -19,12 +19,50 @@ LOCAL_STEEM_LOCATION="${LOCAL_STEEM_LOCATION:-$DEFAULT_LOCAL_STEEM_LOCATION}"
 # Ports
 SEED_PORT="-p 2001:2001"
 API_PORT="-p 8091:8091"  # remove if not exposing API
-
 DOCKER_ARGS="$SEED_PORT $API_PORT"
 
 # ==========================
 # Functions
 # ==========================
+
+print() {
+    echo "========================================="
+    echo " Docker Configuration"
+    echo "========================================="
+    echo "DOCKER_NAME          = $DOCKER_NAME"
+    echo "DOCKER_IMAGE         = $DOCKER_IMAGE"
+    echo "LOCAL_STEEM_LOCATION = $LOCAL_STEEM_LOCATION"
+    echo "ULIMIT_NUMBER        = $ULIMIT_NUMBER"
+    echo "SEED_PORT            = $SEED_PORT"
+    echo "API_PORT             = $API_PORT"
+    echo "DOCKER_ARGS          = $DOCKER_ARGS"
+    echo "========================================="
+}
+
+status() {
+    if ! docker ps -a --format '{{.Names}}' | grep -qw "$DOCKER_NAME"; then
+        echo "Container '$DOCKER_NAME' does not exist."
+        return
+    fi
+
+    container_id=$(docker ps -a -q -f name="^$DOCKER_NAME$")
+    running=$(docker inspect -f '{{.State.Running}}' "$container_id")
+    echo "========================================="
+    echo " Docker Container Status"
+    echo "========================================="
+    echo "Container Name : $DOCKER_NAME"
+    echo "Container ID   : $container_id"
+    echo "Image          : $(docker inspect -f '{{.Config.Image}}' "$container_id")"
+    echo "Running        : $running"
+    echo "Ports          : $(docker port "$container_id")"
+    echo "Mounts         :"
+    docker inspect -f '{{range .Mounts}}{{.Source}} -> {{.Destination}}{{"\n"}}{{end}}' "$container_id"
+    echo "Ulimit nofile  : $(docker inspect -f '{{index .HostConfig.Ulimits 0 "Hard"}}' "$container_id" 2>/dev/null || echo "N/A")"
+    echo "Restart Policy : $(docker inspect -f '{{.HostConfig.RestartPolicy.Name}}' "$container_id")"
+    echo "Memory/CPU     :"
+    docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}" "$container_id"
+    echo "========================================="
+}
 
 start() {
     docker run -itd \
@@ -47,8 +85,15 @@ debug() {
 }
 
 stop() {
+    echo "Stopping container: $DOCKER_NAME"
     docker stop -t 600 "$DOCKER_NAME" 2>/dev/null
     docker rm "$DOCKER_NAME" 2>/dev/null
+}
+
+kill() {
+    echo "Force killing container: $DOCKER_NAME"
+    docker kill "$DOCKER_NAME" 2>/dev/null
+    docker rm -f "$DOCKER_NAME" 2>/dev/null
 }
 
 restart() {
@@ -68,11 +113,14 @@ logs() {
 case "$1" in
     start)      start ;;
     stop)       stop ;;
+    kill)       kill ;;
     restart)    restart ;;
     logs)       logs "$2" ;;
     debug)      debug ;;
+    print)      print ;;
+    status)     status ;;
     *)
-        echo "Usage: $0 {start|stop|restart|logs [num=100]|debug}"
+        echo "Usage: $0 {start|stop|kill|restart|logs [num=100]|debug|print|status}"
         exit 1
         ;;
 esac
