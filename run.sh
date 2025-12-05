@@ -32,10 +32,11 @@ print() {
     echo "DOCKER_NAME          = $DOCKER_NAME"
     echo "DOCKER_IMAGE         = $DOCKER_IMAGE"
     echo "LOCAL_STEEM_LOCATION = $LOCAL_STEEM_LOCATION"
+    [ ! -d "$LOCAL_STEEM_LOCATION" ] && echo "Warning: $LOCAL_STEEM_LOCATION does not exist"
     echo "ULIMIT_NUMBER        = $ULIMIT_NUMBER"
     echo "SEED_PORT            = $SEED_PORT"
     echo "API_PORT             = $API_PORT"
-    echo "DOCKER_ARGS          = $DOCKER_ARGS"
+    echo "DOCKER_ARGS          = $DOCKER_ARGS"    
     echo "========================================="
 }
 
@@ -74,7 +75,7 @@ start() {
         steemd --data-dir=/steem
 }
 
-debug() {
+test() {
     docker run -it \
         --name "$DOCKER_NAME" \
         $DOCKER_ARGS \
@@ -85,15 +86,31 @@ debug() {
 }
 
 stop() {
+    if ! docker ps -a --format '{{.Names}}' | grep -qw "$DOCKER_NAME"; then
+        echo "Container '$DOCKER_NAME' does not exist."
+        return
+    fi
     echo "Stopping container: $DOCKER_NAME"
     docker stop -t 600 "$DOCKER_NAME" 2>/dev/null
     docker rm "$DOCKER_NAME" 2>/dev/null
 }
 
 kill() {
+    if ! docker ps -a --format '{{.Names}}' | grep -qw "$DOCKER_NAME"; then
+        echo "Container '$DOCKER_NAME' does not exist."
+        return
+    fi
     echo "Force killing container: $DOCKER_NAME"
     docker kill "$DOCKER_NAME" 2>/dev/null
     docker rm -f "$DOCKER_NAME" 2>/dev/null
+}
+
+debug() {
+    if ! docker ps --format '{{.Names}}' | grep -qw "$DOCKER_NAME"; then
+        echo "Container '$DOCKER_NAME' is not running. Please start it first."
+        return 1
+    fi
+    docker exec -it "$DOCKER_NAME" /bin/bash
 }
 
 restart() {
@@ -103,7 +120,11 @@ restart() {
 
 logs() {
     tail_count="${1:-100}"
-    docker logs -f --tail "$tail_count" "$DOCKER_NAME"
+    if [ "$tail_count" = "all" ]; then
+        docker logs -f "$DOCKER_NAME"
+    else
+        docker logs -f --tail "$tail_count" "$DOCKER_NAME"
+    fi
 }
 
 # ==========================
@@ -117,10 +138,11 @@ case "$1" in
     restart)    restart ;;
     logs)       logs "$2" ;;
     debug)      debug ;;
+    test)       test ;; 
     print)      print ;;
     status)     status ;;
     *)
-        echo "Usage: $0 {start|stop|kill|restart|logs [num=100]|debug|print|status}"
+        echo "Usage: $0 {start|stop|kill|restart|logs [num=100]|debug|print|status|test}"
         exit 1
         ;;
 esac
