@@ -1,95 +1,178 @@
 # Docker Steem Witness Node Utility
-This utility script helps manage a Steem witness node using Docker. You can start, stop, restart, and view logs of the witness node container with simple commands.
+
+This utility script helps manage a Steem witness node using Docker. You can start, stop, restart, force kill, debug, print configuration, check status, and view logs of the witness node container with simple commands.
+
+---
 
 ## Requirements
-- Docker installed and running
-- A Steem witness node Docker image (`ety001/steem-full-mira` in this example)
+
+- Docker installed and running  
+- A Steem witness node Docker image (For example: `justyy/steem:ubuntu24.04`)  
+
+---
 
 ## Environment Variables
-The following environment variables can be used to customize the behavior of the script:
 
-### DOCKER_NAME
-- Description: The name of the Docker container that will run the Steem witness node.
-- Default: steem
-- Example:
-```bash
-export DOCKER_NAME="my_steem_container"
-```
+The following environment variables can be used to customize the behavior of the script. The script respects any environment variable you export before running it. If a variable is not set, the default value will be used.
 
-### DOCKER_IMAGE
-- Description: The Docker image that will be used to run the Steem witness node.
-- Default: steem:latest
-- Example:
-```bash
-export DOCKER_IMAGE="my_custom_steem_image:latest"
-```
+---
 
-You can pull the prebuilt images from [justyy/steem](https://hub.docker.com/r/justyy/steem/tags), for example:
+### `DOCKER_NAME`
 
-```bash
-docker pull justyy/steem:ubuntu24.04
-```
+- **Description:** The name of the Docker container that will run the Steem witness node.  
+- **Default:** `steem`  
+- **Example:**
 
-### LOCAL_STEEM_LOCATION
-- Description: The local directory where Steem data will be stored. This directory will be mounted to the Docker container.
-- Default: /root/steem-docker/data/witness_node_data_dir
-- Example:
-```bash
-export LOCAL_STEEM_LOCATION="/mnt/my_steem_data"
-```
+<code>export DOCKER_NAME="my_steem_container"</code>
+
+---
+
+### `DOCKER_IMAGE`
+
+- **Description:** The Docker image that will be used to run the Steem witness node.  
+- **Default:** `steem:latest`  
+- **Example:**
+
+<code>export DOCKER_IMAGE="my_custom_steem_image:latest"</code>
+
+You can pull prebuilt images from [justyy/steem](https://hub.docker.com/r/justyy/steem/tags), for example:
+
+<code>docker pull justyy/steem:ubuntu24.04</code>
+
+---
+
+### `LOCAL_STEEM_LOCATION`
+
+- **Description:** The local directory where Steem data will be stored. This directory will be mounted to the Docker container.  
+- **Default:** `/root/steem-docker/data/witness_node_data_dir`  
+- **Example:**
+
+<code>export LOCAL_STEEM_LOCATION="/mnt/my_steem_data"</code>
+
+> Note: You can also export `DEFAULT_LOCAL_STEEM_LOCATION` to override the default used by the script.
+
+---
+
+### `SEED_PORT` and `API_PORT`
+
+- **SEED_PORT:** Port mapping for the Steem witness node seed port (default `-p 2001:2001`)  
+- **API_PORT:** Port mapping for the HTTP RPC port (default `-p 8091:8091`)  
+
+You can remove or change these in the script if you don’t want to expose the API port.
+
+---
+
+### `ULIMIT_NUMBER`
+
+- **Description:** Number of file descriptors allowed for the container.  
+- **Default:** `999999`  
+
+---
 
 ## Usage
-To customize the behavior of the script, set any of the environment variables listed above before running the script. If you do not set any of the variables, the script will use the following default values:
 
-- DOCKER_NAME: steem
-- DOCKER_IMAGE: steem:latest
-- LOCAL_STEEM_LOCATION: /root/steem-docker/data/witness_node_data_dir
+To customize the behavior of the script, set any of the environment variables listed above before running the script. If you do not set any of the variables, the script will use the default values.
+
+- **DOCKER_NAME:** `steem`  
+- **DOCKER_IMAGE:** `steem:latest`  
+- **LOCAL_STEEM_LOCATION:** `/root/steem-docker/data/witness_node_data_dir`  
+
+---
 
 ### Example with Custom Environment Variables
-```bash
-export DOCKER_NAME="my_steem_node"
-export DOCKER_IMAGE="custom_steem_image:latest"
-export LOCAL_STEEM_LOCATION="/mnt/custom_steem_data"
-```
 
-If you do not set any environment variables, the script will run with the default values:
+<code>export DOCKER_NAME="my_steem_node"</code>  
+<code>export DOCKER_IMAGE="custom_steem_image:latest"</code>  
+<code>export LOCAL_STEEM_LOCATION="/mnt/custom_steem_data"</code>
 
-You can use this script to manage the Docker container running the Steem witness node. The script supports the following operations:
+---
+
+## Script Commands
 
 ### Start the Steem Witness Node
-```bash
-./run.sh start
-```
 
-This command will start the Steem witness node in a Docker container, mapping the following ports:
+<code>./run.sh start</code>
 
-- 2001:2001 – Used by the Steem witness node (seed)
-- 8091:8091 – HTTP RPC port for the witness node
+- Starts the Steem witness node in a Docker container.  
+- Maps the following ports by default:
+  - `2001:2001` – Seed port  
+  - `8091:8091` – HTTP RPC port  
+- Mounts Steem data to `$LOCAL_STEEM_LOCATION` on the host.
 
-The Steem data will be mounted to /data/steem/data on the host.
+---
 
-## Stop the Steem Witness Node
-```bash
-./run.sh stop
-```
+### Stop the Steem Witness Node
 
-This command will stop the Steem witness node, disconnect it from the Docker network (if connected), and remove the Docker container.
+<code>./run.sh stop</code>
 
-## Restart the Steem Witness Node
-```bash
-./run.sh restart
-```
+- Stops the Steem witness node container gracefully with a timeout of 600 seconds.  
+- Removes the container after stopping.  
 
-This command will stop and then restart the Steem witness node. This is the same as calling:
+---
 
-```bash
-./run.sh stop
-./run.sh start
-```
+### Force Kill the Steem Witness Node
 
-## View Logs of the Steem Witness Node
-```bash
-./run.sh logs
-```
+<code>./run.sh kill</code>
 
-This command will display the logs of the running Steem witness node Docker container, tailing the last 100 lines and following new log entries.
+- Immediately stops the container and removes it, regardless of its state.  
+
+---
+
+### Restart the Steem Witness Node
+
+<code>./run.sh restart</code>
+
+- Stops and then starts the container. Equivalent to running:
+
+<code>./run.sh stop</code>  
+<code>./run.sh start</code>
+
+---
+
+### Debug the Steem Witness Node
+
+<code>./run.sh debug</code>
+
+- Starts the container interactively with a `/bin/bash` shell.  
+- Useful for inspecting the container or running commands manually.
+
+---
+
+### Print Current Configuration
+
+<code>./run.sh print</code>
+
+- Prints the current parameters used by the script, including:
+  - `DOCKER_NAME`  
+  - `DOCKER_IMAGE`  
+  - `LOCAL_STEEM_LOCATION`  
+  - `SEED_PORT`  
+  - `API_PORT`  
+  - `DOCKER_ARGS`  
+  - `ULIMIT_NUMBER`  
+
+---
+
+### Check Container Status
+
+<code>./run.sh status</code>
+
+- Displays detailed container information:
+  - Running state  
+  - Container ID  
+  - Image name  
+  - Ports  
+  - Mounted volumes  
+  - Ulimit and restart policy  
+  - CPU and memory usage  
+
+---
+
+### View Logs of the Steem Witness Node
+
+<code>./run.sh logs</code>
+
+- Tails the last 100 lines of the container logs by default and follows new entries.  
+- To show a different number of lines:
+
+<code>./run.sh logs 500</code>
