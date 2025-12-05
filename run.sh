@@ -1,40 +1,54 @@
 #!/bin/bash
 # repo: https://github.com/doctorlai/simple-steem-docker
-# by Steem Witness: @justyy
-# Thanks to Steem Witness: @ety001 on his post: https://steemit.com/witness/@ety001/how-to-deploy-a-steem-witness-node-by-docker
+# Steem Witness: @justyy
+# Acknowledgement: https://steemit.com/witness/@ety001/how-to-deploy-a-steem-witness-node-by-docker
 
-## Usage
-### export DOCKER_NAME="steem"
-### export DOCKER_IMAGE="steem:latest"
-### ./run.sh [start | stop | restart | logs]
-
+# ==========================
 # Default values
+# ==========================
 DEFAULT_DOCKER_NAME="steem"
 DEFAULT_DOCKER_IMAGE="steem:latest"
 DEFAULT_LOCAL_STEEM_LOCATION="/root/steem-docker/data/witness_node_data_dir"
+ULIMIT_NUMBER=999999
 
-# Check if the environment variables are set, if not use the default values
-DOCKER_NAME=${DOCKER_NAME:-$DEFAULT_DOCKER_NAME}
-DOCKER_IMAGE=${DOCKER_IMAGE:-$DEFAULT_DOCKER_IMAGE}
-LOCAL_STEEM_LOCATION=${LOCAL_STEEM_LOCATION:-$DEFAULT_LOCAL_STEEM_LOCATION}
+# Load environment overrides
+DOCKER_NAME="${DOCKER_NAME:-$DEFAULT_DOCKER_NAME}"
+DOCKER_IMAGE="${DOCKER_IMAGE:-$DEFAULT_DOCKER_IMAGE}"
+LOCAL_STEEM_LOCATION="${LOCAL_STEEM_LOCATION:-$DEFAULT_LOCAL_STEEM_LOCATION}"
 
-## 2001 is seed port
-## 8091 is API pord - optional, remove if you don't expose API
+# Ports
+SEED_PORT="-p 2001:2001"
+API_PORT="-p 8091:8091"  # remove if not exposing API
+
+DOCKER_ARGS="$SEED_PORT $API_PORT"
+
+# ==========================
+# Functions
+# ==========================
+
 start() {
     docker run -itd \
-        --name $DOCKER_NAME \
-        -p 2001:2001 \
-        -p 8091:8091 \
-		--ulimit nofile=999999 \
-        -v $LOCAL_STEEM_LOCATION:/steem \
-        $DOCKER_IMAGE \
-        /usr/local/steemd/bin/steemd --data-dir=/steem
+        --name "$DOCKER_NAME" \
+        $DOCKER_ARGS \
+        --ulimit nofile="$ULIMIT_NUMBER" \
+        -v "$LOCAL_STEEM_LOCATION":/steem \
+        "$DOCKER_IMAGE" \
+        steemd --data-dir=/steem
+}
+
+debug() {
+    docker run -it \
+        --name "$DOCKER_NAME" \
+        $DOCKER_ARGS \
+        --ulimit nofile="$ULIMIT_NUMBER" \
+        -v "$LOCAL_STEEM_LOCATION":/steem \
+        "$DOCKER_IMAGE" \
+        /bin/bash
 }
 
 stop() {
-    docker network disconnect bridge $DOCKER_NAME
-    docker stop -t 600 $DOCKER_NAME
-    docker rm $DOCKER_NAME
+    docker stop -t 600 "$DOCKER_NAME" 2>/dev/null
+    docker rm "$DOCKER_NAME" 2>/dev/null
 }
 
 restart() {
@@ -43,25 +57,22 @@ restart() {
 }
 
 logs() {
-    docker logs -f --tail 100 $DOCKER_NAME
+    tail_count="${1:-100}"
+    docker logs -f --tail "$tail_count" "$DOCKER_NAME"
 }
 
-# Main script: Check the parameter passed to the script
+# ==========================
+# Main
+# ==========================
+
 case "$1" in
-    start)
-        start
-        ;;
-    stop)
-        stop
-        ;;
-    restart)
-        restart
-        ;;
-    logs)
-        logs
-        ;;
+    start)      start ;;
+    stop)       stop ;;
+    restart)    restart ;;
+    logs)       logs "$2" ;;
+    debug)      debug ;;
     *)
-        echo "Usage: $0 {start|stop|restart|logs}"
+        echo "Usage: $0 {start|stop|restart|logs [num=100]|debug}"
         exit 1
         ;;
 esac
