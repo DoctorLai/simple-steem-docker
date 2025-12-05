@@ -129,12 +129,20 @@ To customize the behavior of the script, set any of the environment variables li
 
 ---
 
+### Start a Test Steem Container
+
+<code>./run.sh test</code>
+
+- Starts the container interactively with a `/bin/bash` shell.  
+- Useful for inspecting the container or running commands manually.
+
+---
+
 ### Debug the Steem Witness Node
 
 <code>./run.sh debug</code>
 
-- Starts the container interactively with a `/bin/bash` shell.  
-- Useful for inspecting the container or running commands manually.
+- Debug the running steem container
 
 ---
 
@@ -176,3 +184,7 @@ To customize the behavior of the script, set any of the environment variables li
 - To show a different number of lines:
 
 <code>./run.sh logs 500</code>
+
+- To show all:
+
+<code>./run.sh logs all</code>
