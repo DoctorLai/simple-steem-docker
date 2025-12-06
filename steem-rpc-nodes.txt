@@ -6,29 +6,20 @@ https://steem.senior.workers.dev
 https://steemyy.com/node/
 https://api.steemyy.com
 https://api.steemit.com
-https://steem.61bts.com
-https://api.dlike.io
 https://api.steemitdev.com
 https://api.steem.fans
 https://steemapi.boylikegirl.club
-https://api.cotina.org
 https://steemd.steemworld.org
 https://api.campingclub.me
 https://api.pennsif.net
-https://steem.61bts.com
 https://api.steememory.com
 https://api.symbionts.io
-https://rpc.amarbangla.net
 https://api.moecki.online
 https://api.wherein.io
-https://api.botsteem.com
-https://api.futureshock.world
-https://api.s7ventech.com
-
-
-## Broken (checked at 2025-07-19)
-https://cn.steems.top
 https://api.steems.top
+
+## Broken (checked at 2025-12-06)
+https://cn.steems.top
 https://api.worldofxpilar.com  
 https://api.steem-fanbase.com
 https://api.futureshock.world
@@ -38,3 +29,11 @@ https://api.blokfield.io
 https://steem.techs.exchange
 https://api.steemwow.com
 https://api.steem.buzz
+https://api.futureshock.world
+https://api.s7ventech.com
+https://api.botsteem.com
+https://rpc.amarbangla.net
+https://steem.61bts.com
+https://api.cotina.org
+https://api.dlike.io
+https://steem.61bts.com
