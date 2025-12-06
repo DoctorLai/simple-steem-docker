@@ -2,6 +2,7 @@
 # repo: https://github.com/doctorlai/simple-steem-docker
 # Steem Witness: @justyy
 # Acknowledgement: https://steemit.com/witness/@ety001/how-to-deploy-a-steem-witness-node-by-docker
+set -e
 
 # ==========================
 # Default values
@@ -40,10 +41,18 @@ print() {
     echo "========================================="
 }
 
+container_exists() {
+    docker ps -a --format '{{.Names}}' | grep -qw "$1"
+}
+
+container_running() {
+    docker ps --format '{{.Names}}' | grep -qw "$1"
+}
+
 status() {
-    if ! docker ps -a --format '{{.Names}}' | grep -qw "$DOCKER_NAME"; then
+    if ! container_exists "$DOCKER_NAME"; then
         echo "Container '$DOCKER_NAME' does not exist."
-        return
+        return 1
     fi
 
     container_id=$(docker ps -a -q -f name="^$DOCKER_NAME$")
@@ -63,9 +72,26 @@ status() {
     echo "Memory/CPU     :"
     docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}" "$container_id"
     echo "========================================="
+    return 0
 }
 
 start() {
+    if container_running "$DOCKER_NAME"; then
+        echo "Container '$DOCKER_NAME' is already running."
+        return 1
+    fi
+
+    # Container exists but stopped → remove it
+    if container_exists "$DOCKER_NAME"; then
+        echo "Removing existing/stopped container '$DOCKER_NAME'."
+        docker rm "$DOCKER_NAME"
+    fi
+    ## check directory
+    if [ ! -d "$LOCAL_STEEM_LOCATION" ]; then
+        echo "The local steem data directory '$LOCAL_STEEM_LOCATION' does not exist."
+        echo "Please create it and ensure proper permissions."
+        return 1
+    fi
     docker run -itd \
         --name "$DOCKER_NAME" \
         $DOCKER_ARGS \
@@ -76,7 +102,7 @@ start() {
 }
 
 test() {
-    docker run -it \
+    docker run -it --rm \
         $DOCKER_ARGS \
         --ulimit nofile="$ULIMIT_NUMBER" \
         -v "$LOCAL_STEEM_LOCATION":/steem \
@@ -85,27 +111,29 @@ test() {
 }
 
 stop() {
-    if ! docker ps -a --format '{{.Names}}' | grep -qw "$DOCKER_NAME"; then
+    if ! container_exists "$DOCKER_NAME"; then
         echo "Container '$DOCKER_NAME' does not exist."
-        return
+        return 1
     fi
     echo "Stopping container: $DOCKER_NAME"
     docker stop -t 600 "$DOCKER_NAME" 2>/dev/null
     docker rm "$DOCKER_NAME" 2>/dev/null
+    return 0
 }
 
 kill() {
-    if ! docker ps -a --format '{{.Names}}' | grep -qw "$DOCKER_NAME"; then
+    if ! container_exists "$DOCKER_NAME"; then
         echo "Container '$DOCKER_NAME' does not exist."
-        return
+        return 1
     fi
     echo "Force killing container: $DOCKER_NAME"
     docker kill "$DOCKER_NAME" 2>/dev/null
     docker rm -f "$DOCKER_NAME" 2>/dev/null
+    return 0
 }
 
 debug() {
-    if ! docker ps --format '{{.Names}}' | grep -qw "$DOCKER_NAME"; then
+    if ! container_running "$DOCKER_NAME"; then
         echo "Container '$DOCKER_NAME' is not running. Please start it first."
         return 1
     fi
@@ -113,14 +141,14 @@ debug() {
 }
 
 restart() {
-    stop
+    stop || true
     start
 }
 
 logs() {
-    if ! docker ps -a --format '{{.Names}}' | grep -qw "$DOCKER_NAME"; then
+    if ! container_exists "$DOCKER_NAME"; then
         echo "Container '$DOCKER_NAME' does not exist."
-        return
+        return 1
     fi
     tail_count="${1:-100}"
     if [ "$tail_count" = "all" ]; then
@@ -128,6 +156,7 @@ logs() {
     else
         docker logs -f --tail "$tail_count" "$DOCKER_NAME"
     fi
+    return 0
 }
 
 # ==========================
