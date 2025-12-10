@@ -17,9 +17,9 @@ https://api.symbionts.io
 https://api.moecki.online
 https://api.wherein.io
 https://api.steems.top
-
-## Broken (checked at 2025-12-06)
 https://cn.steems.top
+
+## Broken (checked at 2025-12-10)
 https://api.worldofxpilar.com  
 https://api.steem-fanbase.com
 https://api.futureshock.world
