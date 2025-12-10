@@ -41,6 +41,18 @@ print() {
     echo "========================================="
 }
 
+install_docker() {
+    if ! command -v docker &> /dev/null; then
+        echo "Docker not found. Installing Docker..."
+        curl -fsSL https://get.docker.com -o ~/get-docker.sh
+        sh ~/get-docker.sh
+        rm ~/get-docker.sh
+        echo "Docker installed successfully."
+    else
+        echo "Docker is already installed."
+    fi
+}
+
 container_exists() {
     docker ps -a --format '{{.Names}}' | grep -qw "$1"
 }
@@ -173,8 +185,9 @@ case "$1" in
     test)       test ;; 
     print)      print ;;
     status)     status ;;
+    install_docker) install_docker ;;
     *)
-        echo "Usage: $0 {start|stop|kill|restart|logs [num=100|all]|debug|print|status|test}"
+        echo "Usage: $0 {start|stop|kill|restart|logs [num=100|all]|debug|print|status|test|install_docker}"
         exit 1
         ;;
 esac

@@ -188,3 +188,11 @@ To customize the behavior of the script, set any of the environment variables li
 - To show all:
 
 <code>./run.sh logs all</code>
+
+---
+
+### Install Docker
+
+<code>./run.sh install_docker</code>
+
+- This is a quick short cut to install the docker.
