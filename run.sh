@@ -11,11 +11,13 @@ DEFAULT_DOCKER_NAME="steem"
 DEFAULT_DOCKER_IMAGE="steem:latest"
 DEFAULT_LOCAL_STEEM_LOCATION="/root/steem-docker/data/witness_node_data_dir"
 ULIMIT_NUMBER=999999
+DEFAULT_STEEM_WS_PORT=8090
 
 # Load environment overrides
 DOCKER_NAME="${DOCKER_NAME:-$DEFAULT_DOCKER_NAME}"
 DOCKER_IMAGE="${DOCKER_IMAGE:-$DEFAULT_DOCKER_IMAGE}"
 LOCAL_STEEM_LOCATION="${LOCAL_STEEM_LOCATION:-$DEFAULT_LOCAL_STEEM_LOCATION}"
+STEEM_WS_PORT="${STEEM_WS_PORT:-$DEFAULT_STEEM_WS_PORT}"
 
 # Ports
 SEED_PORT="-p 2001:2001"
@@ -133,6 +135,14 @@ stop() {
     return 0
 }
 
+wallet() {
+    if ! container_running "$DOCKER_NAME"; then
+        echo "Container '$DOCKER_NAME' is not running. Please start it first."
+        return 1
+    fi
+    docker exec -it $DOCKER_NAME cli_wallet -s ws://127.0.0.1:$STEEM_WS_PORT
+}
+
 kill() {
     if ! container_exists "$DOCKER_NAME"; then
         echo "Container '$DOCKER_NAME' does not exist."
@@ -186,8 +196,20 @@ case "$1" in
     print)      print ;;
     status)     status ;;
     install_docker) install_docker ;;
+    wallet)     wallet ;;
     *)
-        echo "Usage: $0 {start|stop|kill|restart|logs [num=100|all]|debug|print|status|test|install_docker}"
+        echo "Usage: $0 {start|stop|kill|restart|logs [num=100|all]|debug|print|status|test|install_docker|wallet}"
+        echo "  start            - Start the Steem Docker container"
+        echo "  stop             - Stop the Steem Docker container gracefully"
+        echo "  kill             - Force kill the Steem Docker container"
+        echo "  restart          - Restart the Steem Docker container"
+        echo "  logs [num|all]   - View the Steem Docker container logs (default last 100 lines, or 'all' for full logs)"
+        echo "  debug           - Access the Steem Docker container shell for debugging"
+        echo "  print            - Print the current configuration"
+        echo "  status           - Show the status of the Steem Docker container"
+        echo "  test             - Run a temporary Steem Docker container for testing"
+        echo "  install_docker  - Install Docker if not already installed"
+        echo "  wallet          - Access the Steem wallet CLI inside the running container"
         exit 1
         ;;
 esac
