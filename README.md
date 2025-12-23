@@ -176,6 +176,14 @@ To customize the behavior of the script, set any of the environment variables li
 
 ---
 
+### Wallet Cli
+
+<code>./run.sh wallet</code>
+
+- Launch a wallet_cli connected to local steemd at port 8090 (which can be specified in env variable `STEEM_WS_PORT`)
+
+---
+
 ### View Logs of the Steem Witness Node
 
 <code>./run.sh logs</code>
