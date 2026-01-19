@@ -16,10 +16,9 @@ https://api.steememory.com
 https://api.symbionts.io
 https://api.moecki.online
 https://api.wherein.io
-https://api.steems.top
 https://cn.steems.top
 
-## Broken (checked at 2025-12-10)
+## Broken (checked at 2026-01-19)
 https://api.worldofxpilar.com  
 https://api.steem-fanbase.com
 https://api.futureshock.world
@@ -37,3 +36,4 @@ https://steem.61bts.com
 https://api.cotina.org
 https://api.dlike.io
 https://steem.61bts.com
+https://api.steems.top

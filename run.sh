@@ -12,12 +12,15 @@ DEFAULT_DOCKER_IMAGE="steem:latest"
 DEFAULT_LOCAL_STEEM_LOCATION="/root/steem-docker/data/witness_node_data_dir"
 ULIMIT_NUMBER=999999
 DEFAULT_STEEM_WS_PORT=8090
+## no, always, unless-stopped, on-failure <max-retry-count>
+DEFAULT_RESTART_POLICY="unless-stopped"
 
 # Load environment overrides
 DOCKER_NAME="${DOCKER_NAME:-$DEFAULT_DOCKER_NAME}"
 DOCKER_IMAGE="${DOCKER_IMAGE:-$DEFAULT_DOCKER_IMAGE}"
 LOCAL_STEEM_LOCATION="${LOCAL_STEEM_LOCATION:-$DEFAULT_LOCAL_STEEM_LOCATION}"
 STEEM_WS_PORT="${STEEM_WS_PORT:-$DEFAULT_STEEM_WS_PORT}"
+RESTART_POLICY="${RESTART_POLICY:-$DEFAULT_RESTART_POLICY}"
 
 # Ports
 SEED_PORT="-p 2001:2001"
@@ -28,7 +31,18 @@ DOCKER_ARGS="$SEED_PORT $API_PORT"
 # Functions
 # ==========================
 
-print() {
+validate_restart_policy() {
+    case "$RESTART_POLICY" in
+        no|always|unless-stopped|on-failure* ) ;;
+        *)
+            echo "Invalid RESTART_POLICY: $RESTART_POLICY"
+            echo "Valid values: no | always | unless-stopped | on-failure[:N]"
+            exit 1
+            ;;
+    esac
+}
+
+print_config() {
     echo "========================================="
     echo " Docker Configuration"
     echo "========================================="
@@ -40,6 +54,8 @@ print() {
     echo "SEED_PORT            = $SEED_PORT"
     echo "API_PORT             = $API_PORT"
     echo "DOCKER_ARGS          = $DOCKER_ARGS"    
+    echo "STEEM_WS_PORT        = $STEEM_WS_PORT"
+    echo "RESTART_POLICY       = $RESTART_POLICY"
     echo "========================================="
 }
 
@@ -90,6 +106,7 @@ status() {
 }
 
 start() {
+    validate_restart_policy
     if container_running "$DOCKER_NAME"; then
         echo "Container '$DOCKER_NAME' is already running."
         return 1
@@ -108,8 +125,9 @@ start() {
     fi
     docker run -itd \
         --name "$DOCKER_NAME" \
+        --restart "$RESTART_POLICY" \
         $DOCKER_ARGS \
-        --ulimit nofile="$ULIMIT_NUMBER" \
+        --ulimit nofile=$ULIMIT_NUMBER:$ULIMIT_NUMBER \
         -v "$LOCAL_STEEM_LOCATION":/steem \
         "$DOCKER_IMAGE" \
         steemd --data-dir=/steem
@@ -118,7 +136,7 @@ start() {
 test() {
     docker run -it --rm \
         $DOCKER_ARGS \
-        --ulimit nofile="$ULIMIT_NUMBER" \
+        --ulimit nofile=$ULIMIT_NUMBER:$ULIMIT_NUMBER \
         -v "$LOCAL_STEEM_LOCATION":/steem \
         "$DOCKER_IMAGE" \
         /bin/bash
@@ -140,7 +158,7 @@ wallet() {
         echo "Container '$DOCKER_NAME' is not running. Please start it first."
         return 1
     fi
-    docker exec -it $DOCKER_NAME cli_wallet -s ws://127.0.0.1:$STEEM_WS_PORT
+    docker exec -it "$DOCKER_NAME" cli_wallet -s ws://127.0.0.1:$STEEM_WS_PORT
 }
 
 kill() {
@@ -173,12 +191,29 @@ logs() {
         return 1
     fi
     tail_count="${1:-100}"
-    if [ "$tail_count" = "all" ]; then
-        docker logs -f "$DOCKER_NAME"
-    else
-        docker logs -f --tail "$tail_count" "$DOCKER_NAME"
+    tail_args=""
+    disable_follow="${2:-false}"
+    if [ "$tail_count" != "all" ]; then
+        tail_args="-n $tail_count"
     fi
+    if [ "$disable_follow" != "true" ]; then
+        tail_args="$tail_args -f"
+    fi
+    docker logs $tail_args "$DOCKER_NAME"
     return 0
+}
+
+container_logs() {
+    tail_count="${1:-100}"
+    tail_args=""
+    if [ "$tail_count" != "all" ]; then
+        tail_args="-n $tail_count"
+    fi
+    disable_follow="${2:-false}"
+    if [ "$disable_follow" != "true" ]; then
+        tail_args="$tail_args -f"
+    fi
+    tail $tail_args /var/lib/docker/containers/*/*.log
 }
 
 # ==========================
@@ -190,10 +225,11 @@ case "$1" in
     stop)       stop ;;
     kill)       kill ;;
     restart)    restart ;;
-    logs)       logs "$2" ;;
+    logs)       logs "$2" "$3" ;;
+    container_logs) container_logs "$2" "$3" ;;
     debug)      debug ;;
     test)       test ;; 
-    print)      print ;;
+    print)      print_config ;;
     status)     status ;;
     install_docker) install_docker ;;
     wallet)     wallet ;;
@@ -203,7 +239,8 @@ case "$1" in
         echo "  stop             - Stop the Steem Docker container gracefully"
         echo "  kill             - Force kill the Steem Docker container"
         echo "  restart          - Restart the Steem Docker container"
-        echo "  logs [num|all]   - View the Steem Docker container logs (default last 100 lines, or 'all' for full logs)"
+        echo "  logs [num|all] [<disable_follow>]   - View the Steem Docker container logs (default last 100 lines, or 'all' for full logs), optionally disable follow"
+        echo "  container_logs [num|all] [<disable_follow>] - View raw Docker container logs (default last 100 lines, or 'all' for full logs), optionally disable follow"
         echo "  debug           - Access the Steem Docker container shell for debugging"
         echo "  print            - Print the current configuration"
         echo "  status           - Show the status of the Steem Docker container"
