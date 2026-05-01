@@ -4,6 +4,49 @@
 # Acknowledgement: https://steemit.com/witness/@ety001/how-to-deploy-a-steem-witness-node-by-docker
 set -e
 
+
+#### Example of docker-compose.yaml if you are using Jussi and want to connect to the steemd container via the internal Docker network:
+## you need to join to the same Docker network (steem-net) and use the same network alias (steemd) as defined in this script
+## to verify, both should show steem-net:
+### docker inspect jussi-jussi-1 --format '{{json .NetworkSettings.Networks}}' | jq
+### docker inspect steem --format '{{json .NetworkSettings.Networks}}' | jq
+
+## in jussi config, use "http://steemd:8091" as the upstream URL to connect to the steemd container via Docker network
+# services:
+#   jussi:
+#     restart: "always"
+#     image: "steemit/jussi:latest"
+#     ports:
+#       - "8080:8080"
+#     environment:
+#       JUSSI_UPSTREAM_CONFIG_FILE: /app/config.json
+#       JUSSI_REDIS_URL: redis://redis1:6379
+#     volumes:
+#       - ./config.json:/app/config.json
+#     networks:
+#       - steem-net
+
+#   redis1:
+#     restart: "always"
+#     image: "redis:latest"
+#     volumes:
+#       - ./redis1:/data
+#     networks:
+#       - steem-net
+
+# networks:
+#   steem-net:
+#     external: true
+
+
+#### Manual steps to connect Jussi to the steemd container if you are not using docker-compose:
+## 1. Connect existing steem container: docker network connect --alias steemd steem-net steem
+## 2. Connect Jussi container (if not already): docker network connect steem-net jussi-jussi-1
+## 3. Test: docker exec -it jussi-jussi-1 curl -s \
+#   -H "Content-Type: application/json" \
+#   --data '{"jsonrpc":"2.0","method":"condenser_api.get_block","params":[1],"id":1}' \
+#   http://steemd:8091 | jq
+
 # ==========================
 # Default values
 # ==========================
@@ -14,6 +57,8 @@ ULIMIT_NUMBER=999999
 DEFAULT_STEEM_WS_PORT=8090
 ## no, always, unless-stopped, on-failure <max-retry-count>
 DEFAULT_RESTART_POLICY="unless-stopped"
+DEFAULT_DOCKER_NETWORK="steem-net"
+DEFAULT_DOCKER_ALIAS="steemd"
 
 # Load environment overrides
 DOCKER_NAME="${DOCKER_NAME:-$DEFAULT_DOCKER_NAME}"
@@ -21,6 +66,8 @@ DOCKER_IMAGE="${DOCKER_IMAGE:-$DEFAULT_DOCKER_IMAGE}"
 LOCAL_STEEM_LOCATION="${LOCAL_STEEM_LOCATION:-$DEFAULT_LOCAL_STEEM_LOCATION}"
 STEEM_WS_PORT="${STEEM_WS_PORT:-$DEFAULT_STEEM_WS_PORT}"
 RESTART_POLICY="${RESTART_POLICY:-$DEFAULT_RESTART_POLICY}"
+DOCKER_NETWORK="${DOCKER_NETWORK:-$DEFAULT_DOCKER_NETWORK}"
+DOCKER_ALIAS="${DOCKER_ALIAS:-$DEFAULT_DOCKER_ALIAS}"
 
 # Ports
 SEED_PORT="-p 2001:2001"
@@ -30,6 +77,15 @@ DOCKER_ARGS="$SEED_PORT $API_PORT"
 # ==========================
 # Functions
 # ==========================
+
+ensure_network() {
+    if ! docker network inspect "$DOCKER_NETWORK" >/dev/null 2>&1; then
+        echo "Creating Docker network: $DOCKER_NETWORK"
+        docker network create "$DOCKER_NETWORK"
+    else
+        echo "Docker network '$DOCKER_NETWORK' already exists."
+    fi
+}
 
 validate_restart_policy() {
     case "$RESTART_POLICY" in
@@ -56,6 +112,8 @@ print_config() {
     echo "DOCKER_ARGS          = $DOCKER_ARGS"    
     echo "STEEM_WS_PORT        = $STEEM_WS_PORT"
     echo "RESTART_POLICY       = $RESTART_POLICY"
+    echo "DOCKER_NETWORK       = $DOCKER_NETWORK"
+    echo "DOCKER_ALIAS         = $DOCKER_ALIAS"
     echo "========================================="
 }
 
@@ -101,6 +159,7 @@ status() {
     echo "Restart Policy : $(docker inspect -f '{{.HostConfig.RestartPolicy.Name}}' "$container_id")"
     echo "Memory/CPU     :"
     docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}" "$container_id"
+    echo "Networks       : $(docker inspect -f '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}' "$container_id")"
     echo "========================================="
     return 0
 }
@@ -123,9 +182,12 @@ start() {
         echo "Please create it and ensure proper permissions."
         return 1
     fi
+    ensure_network
     docker run -itd \
         --name "$DOCKER_NAME" \
         --restart "$RESTART_POLICY" \
+        --network "$DOCKER_NETWORK" \
+        --network-alias "$DOCKER_ALIAS" \
         $DOCKER_ARGS \
         --ulimit nofile=$ULIMIT_NUMBER:$ULIMIT_NUMBER \
         -v "$LOCAL_STEEM_LOCATION":/steem \
@@ -134,7 +196,10 @@ start() {
 }
 
 test() {
+    ensure_network
     docker run -it --rm \
+        --network "$DOCKER_NETWORK" \
+        --network-alias "$DOCKER_ALIAS-test" \
         $DOCKER_ARGS \
         --ulimit nofile=$ULIMIT_NUMBER:$ULIMIT_NUMBER \
         -v "$LOCAL_STEEM_LOCATION":/steem \
